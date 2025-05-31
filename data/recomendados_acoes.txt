@@ -1,0 +1,12 @@
+Itausa	ITSA4	8,30%
+WEG	WEGE3	8,30%
+Suzano	SUZB3	8,30%
+Unipar	UNIP6	8,30%
+PRIO	PRIO3	8,30%
+Taesa	TAEE11	8,30%
+Copel	CPLE6	8,30%
+Vivo	VIVT3	8,30%
+Porto Seguro	PSSA3	8,30%
+Cosan	CSAN3	8,30%
+B3	B3SA3	8,30%
+Irani	RANI3	8,30%

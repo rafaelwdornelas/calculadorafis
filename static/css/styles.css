@@ -1,0 +1,613 @@
+/* Global Styles */
+:root {
+    --primary-color: #0d6efd;
+    --primary-hover: #0b5ed7;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --body-bg: #f5f7fa;
+    --card-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --transition-speed: 0.3s;
+}
+
+body {
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--body-bg);
+    color: var(--dark-color);
+    line-height: 1.6;
+    padding-bottom: 2rem;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 1.5rem;
+    background-color: white;
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+}
+
+.section-heading {
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--dark-color);
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.section-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background-color: var(--primary-color);
+}
+
+/* Hero Section */
+.hero-section .card {
+    overflow: hidden;
+    transition: all var(--transition-speed);
+}
+
+.hero-section .card:hover {
+    transform: translateY(-5px);
+}
+
+.hero-icon {
+    font-size: 6rem;
+    opacity: 0.8;
+}
+
+/* Feature Icons */
+.feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1.5rem;
+}
+
+.feature-icon i {
+    opacity: 0.9;
+}
+
+/* Step Items */
+.step-item {
+    position: relative;
+    padding: 1rem;
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+}
+
+/* Summary Cards */
+.summary-card {
+    transition: all var(--transition-speed);
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+}
+
+.summary-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--dark-color);
+}
+
+/* Portfolio Cards */
+.portfolio-icon {
+    font-size: 2rem;
+}
+
+.portfolio-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.portfolio-percentage {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+}
+
+/* Table Styles */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    background-color: var(--light-color);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Distribution Legend */
+.distribution-legend {
+    padding: 1rem;
+}
+
+.legend-item {
+    font-size: 1rem;
+}
+
+.legend-color-box {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    border-radius: 3px;
+}
+
+/* Form Controls */
+.custom-checkbox {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+    margin-bottom: 0.5rem;
+    transition: all var(--transition-speed);
+}
+
+.custom-checkbox:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.custom-checkbox .form-check-input:checked ~ .form-check-label {
+    font-weight: 600;
+}
+
+/* Loading Indicator */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner-container {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Navigation Tabs */
+.nav-pills {
+    margin-bottom: 1.5rem;
+}
+
+.nav-pills .nav-link {
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    color: var(--dark-color);
+    transition: all var(--transition-speed);
+}
+
+.nav-pills .nav-link.active {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 0.125rem 0.25rem rgba(13, 110, 253, 0.4);
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+    background-color: var(--light-color);
+}
+
+/* Light/Dark Mode Toggle - CORRIGIDO */
+.dark-mode {
+    background-color: #121212;
+    color: #f8f9fa;
+}
+
+.dark-mode .card {
+    background-color: #1e1e1e;
+    color: #f8f9fa;
+    border: 1px solid #333;
+}
+
+.dark-mode .card-header {
+    background-color: #2a2a2a;
+    border-bottom-color: #444;
+}
+
+/* Corrigir headers coloridos no dark mode */
+.dark-mode .card-header.bg-primary,
+.dark-mode .card-header.bg-success,
+.dark-mode .card-header.bg-warning,
+.dark-mode .card-header.bg-info,
+.dark-mode .card-header.bg-dark {
+    color: #fff !important;
+}
+
+.dark-mode .card-header.bg-warning {
+    color: #000 !important;
+}
+
+.dark-mode .card-header.bg-white {
+    background-color: #2a2a2a !important;
+    color: #f8f9fa !important;
+}
+
+/* Seção heading no dark mode */
+.dark-mode .section-heading {
+    color: #f8f9fa;
+}
+
+/* Tabelas no dark mode */
+.dark-mode .table {
+    color: #f8f9fa;
+    background-color: #1e1e1e;
+}
+
+.dark-mode .table-light > *, 
+.dark-mode .table-light,
+.dark-mode .table th {
+    background-color: #2a2a2a !important;
+    color: #f8f9fa !important;
+    border-color: #444 !important;
+}
+
+.dark-mode .table td {
+    border-color: #444 !important;
+    background-color: #1e1e1e !important;
+    color: #f8f9fa !important;
+}
+
+.dark-mode .table tbody tr {
+    background-color: #1e1e1e !important;
+    color: #f8f9fa !important;
+}
+
+.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #f8f9fa;
+}
+
+.dark-mode .table-hover tbody tr:hover td {
+    background-color: transparent !important;
+}
+
+.dark-mode .table-active,
+.dark-mode .table-active td {
+    background-color: #333 !important;
+    color: #f8f9fa !important;
+}
+
+.dark-mode .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #252525 !important;
+}
+
+.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: transparent !important;
+}
+
+.dark-mode .table-striped > tbody > tr:nth-of-type(even) {
+    background-color: #1e1e1e !important;
+}
+
+.dark-mode .table-striped > tbody > tr:nth-of-type(even) > * {
+    background-color: transparent !important;
+}
+
+/* Summary cards no dark mode */
+.dark-mode .summary-card {
+    background-color: #2a2a2a !important;
+    border: 1px solid #444;
+}
+
+.dark-mode .summary-value {
+    color: #f8f9fa;
+}
+
+.dark-mode .summary-icon {
+    color: #0d6efd;
+}
+
+/* Botões e badges */
+.dark-mode .btn-outline-secondary {
+    color: #f8f9fa;
+    border-color: #6c757d;
+}
+
+.dark-mode .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.dark-mode .badge.bg-light {
+    background-color: #333 !important;
+    color: #f8f9fa !important;
+}
+
+/* Elementos bg-light no dark mode */
+.dark-mode .bg-light {
+    background-color: #2a2a2a !important;
+    color: #f8f9fa !important;
+}
+
+/* Borders coloridos */
+.dark-mode .border-primary,
+.dark-mode .border-success,
+.dark-mode .border-warning,
+.dark-mode .border-info {
+    border-color: currentColor !important;
+    opacity: 0.8;
+}
+
+/* Textos coloridos */
+.dark-mode .text-dark {
+    color: #f8f9fa !important;
+}
+
+.dark-mode .text-muted {
+    color: #adb5bd !important;
+}
+
+/* Alerts no dark mode */
+.dark-mode .alert-info {
+    background-color: #032830;
+    color: #0dcaf0;
+    border-color: #055160;
+}
+
+.dark-mode .alert-warning {
+    background-color: #332701;
+    color: #ffc107;
+    border-color: #664d03;
+}
+
+/* Forms no dark mode */
+.dark-mode .form-control,
+.dark-mode .form-select,
+.dark-mode .input-group-text {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #f8f9fa;
+}
+
+.dark-mode .form-control:focus,
+.dark-mode .form-select:focus {
+    background-color: #2a2a2a;
+    border-color: #0d6efd;
+    color: #f8f9fa;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.dark-mode .form-text {
+    color: #adb5bd;
+}
+
+.dark-mode .form-check-input {
+    background-color: #2a2a2a;
+    border-color: #444;
+}
+
+.dark-mode .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Custom checkbox no dark mode */
+.dark-mode .custom-checkbox {
+    border-color: #444;
+    background-color: #1e1e1e;
+}
+
+.dark-mode .custom-checkbox:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Nav pills no dark mode */
+.dark-mode .nav-pills .nav-link {
+    color: #f8f9fa;
+    background-color: transparent;
+}
+
+.dark-mode .nav-pills .nav-link:hover:not(.active) {
+    background-color: #2a2a2a;
+    color: #f8f9fa;
+}
+
+/* Spinner overlay no dark mode */
+.dark-mode .spinner-overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.dark-mode .spinner-container {
+    background-color: #1e1e1e;
+    color: #f8f9fa;
+}
+
+/* Footer no dark mode */
+.dark-mode .footer {
+    border-top-color: #444 !important;
+}
+
+.dark-mode .border-top {
+    border-top-color: #444 !important;
+}
+
+.dark-mode .border-bottom {
+    border-bottom-color: #444 !important;
+}
+
+/* Portfolio cards específicos */
+.dark-mode .portfolio-icon {
+    opacity: 0.9;
+}
+
+.dark-mode .portfolio-percentage {
+    color: #adb5bd;
+}
+
+/* Step items no dark mode */
+.dark-mode .step-number {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* Print Styles */
+@media print {
+    .navbar, footer, .btn, #section-calculator, #features, #how-it-works, #about {
+        display: none !important;
+    }
+    
+    .card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    
+    body {
+        padding: 0;
+        background-color: white !important;
+    }
+    
+    .container, .container-fluid {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+    }
+    
+    .table td, .table th {
+        padding: 0.25rem 0.5rem;
+    }
+    
+    canvas {
+        max-height: 200px !important;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .nav-pills .nav-link {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .table {
+        font-size: 0.9rem;
+    }
+    
+    .summary-value, .portfolio-value {
+        font-size: 1.1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .step-item {
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Additional Utility Classes */
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+}
+
+.shadow {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+}
+
+.shadow-lg {
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+}
+
+.border-primary { border-color: var(--primary-color) !important; }
+.border-success { border-color: var(--success-color) !important; }
+.border-warning { border-color: var(--warning-color) !important; }
+.border-info { border-color: var(--info-color) !important; }
+
+.text-primary { color: var(--primary-color) !important; }
+.text-success { color: var(--success-color) !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-info { color: var(--info-color) !important; }
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.slide-up {
+    animation: slideUp 0.5s;
+}
+
+@keyframes slideUp {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Additional Chart Styles */
+canvas {
+    max-width: 100%;
+}
