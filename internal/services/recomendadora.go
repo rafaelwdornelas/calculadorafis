@@ -8,11 +8,15 @@ import (
 )
 
 // RecomendadoraService gerencia as recomendações de investimentos
-type RecomendadoraService struct{}
+type RecomendadoraService struct {
+	dataComService *DataComService
+}
 
 // NewRecomendadoraService cria um novo serviço de recomendações
 func NewRecomendadoraService() *RecomendadoraService {
-	return &RecomendadoraService{}
+	return &RecomendadoraService{
+		dataComService: NewDataComService(),
+	}
 }
 
 // GerarRecomendacoesFII gera recomendações de compra para FIIs

@@ -39,6 +39,11 @@ type RecomendacaoCompraFII struct {
 	Quantidade     int
 	ValorCompra    float64
 	PesoAposCompra float64
+	// Informações de Data Com
+	ProximaDataCom string
+	DiasAteDataCom int
+	StatusCompra   string
+	MensagemStatus string
 }
 
 // Estrutura para recomendação de compra de ação
@@ -55,6 +60,11 @@ type RecomendacaoCompraAcao struct {
 	Quantidade     int
 	ValorCompra    float64
 	PesoAposCompra float64
+	// Informações de Data Com
+	ProximaDataCom string
+	DiasAteDataCom int
+	StatusCompra   string
+	MensagemStatus string
 }
 
 // Estrutura para recomendação de compra de ETF

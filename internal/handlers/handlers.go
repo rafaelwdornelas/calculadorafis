@@ -19,6 +19,7 @@ type Handlers struct {
 	CalculadoraService *services.Calculadora
 	DataService        *services.DataService
 	DividendoService   *services.DividendoService
+	DataComService     *services.DataComService
 }
 
 // NewHandlers cria uma nova instância de Handlers

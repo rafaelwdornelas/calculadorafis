@@ -611,3 +611,29 @@ body {
 canvas {
     max-width: 100%;
 }
+
+/* Status Badges Enhancement */
+.badge[data-bs-toggle="tooltip"] {
+    cursor: help;
+    transition: transform 0.2s ease;
+}
+
+.badge[data-bs-toggle="tooltip"]:hover {
+    transform: scale(1.1);
+}
+
+/* Data Com Table Cells */
+td small.text-muted {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* Status Column Styling */
+.table td:has(.badge) {
+    vertical-align: middle;
+}
+
+/* Alert Card Styling */
+.card-header i.fas {
+    opacity: 0.9;
+}
