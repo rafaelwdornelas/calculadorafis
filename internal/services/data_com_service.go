@@ -280,16 +280,110 @@ func (s *DataComService) calcularProximaDataComMensal(ultimaData time.Time, diaC
 	return proximaData
 }
 
-// ajustarParaDiaUtil ajusta a data para dia útil
+// ehFeriado verifica se uma data é feriado nacional brasileiro
+func (s *DataComService) ehFeriado(data time.Time) bool {
+	// Feriados fixos (dia/mês)
+	feriadosFixos := []string{
+		"01/01", // Ano Novo
+		"21/04", // Tiradentes
+		"01/05", // Dia do Trabalho
+		"07/09", // Independência do Brasil
+		"12/10", // Nossa Senhora Aparecida
+		"02/11", // Finados
+		"15/11", // Proclamação da República
+		"25/12", // Natal
+	}
+
+	dataStr := data.Format("02/01")
+	for _, feriado := range feriadosFixos {
+		if dataStr == feriado {
+			log.Printf("Data %s é feriado fixo", data.Format("02/01/2006"))
+			return true
+		}
+	}
+
+	// Feriados móveis (precisamos calcular baseado no ano)
+	ano := data.Year()
+
+	// Calcular Páscoa (algoritmo de Gauss)
+	pascoa := calcularPascoa(ano)
+
+	// Feriados baseados na Páscoa
+	carnaval := pascoa.AddDate(0, 0, -47)       // 47 dias antes da Páscoa
+	sextaFeiraSanta := pascoa.AddDate(0, 0, -2) // 2 dias antes da Páscoa
+	corpusChristi := pascoa.AddDate(0, 0, 60)   // 60 dias depois da Páscoa
+
+	// Verificar se a data é um dos feriados móveis
+	if data.Format("02/01/2006") == carnaval.Format("02/01/2006") {
+		log.Printf("Data %s é Carnaval", data.Format("02/01/2006"))
+		return true
+	}
+	if data.Format("02/01/2006") == sextaFeiraSanta.Format("02/01/2006") {
+		log.Printf("Data %s é Sexta-feira Santa", data.Format("02/01/2006"))
+		return true
+	}
+	if data.Format("02/01/2006") == corpusChristi.Format("02/01/2006") {
+		log.Printf("Data %s é Corpus Christi", data.Format("02/01/2006"))
+		return true
+	}
+
+	return false
+}
+
+// calcularPascoa calcula a data da Páscoa para um determinado ano
+func calcularPascoa(ano int) time.Time {
+	// Algoritmo de Gauss para calcular a Páscoa
+	a := ano % 19
+	b := ano / 100
+	c := ano % 100
+	d := b / 4
+	e := b % 4
+	f := (b + 8) / 25
+	g := (b - f + 1) / 3
+	h := (19*a + b - d - g + 15) % 30
+	i := c / 4
+	k := c % 4
+	l := (32 + 2*e + 2*i - h - k) % 7
+	m := (a + 11*h + 22*l) / 451
+	mes := (h + l - 7*m + 114) / 31
+	dia := ((h + l - 7*m + 114) % 31) + 1
+
+	return time.Date(ano, time.Month(mes), dia, 0, 0, 0, 0, time.UTC)
+}
+
+// ajustarParaDiaUtil ajusta a data para dia útil, considerando fins de semana e feriados
 func (s *DataComService) ajustarParaDiaUtil(data time.Time) time.Time {
-	// Se cai no sábado, voltar para sexta
-	if data.Weekday() == time.Saturday {
-		return data.AddDate(0, 0, -1)
+	// Loop para continuar ajustando até encontrar um dia útil
+	for {
+		ajustou := false
+
+		// Se cai no sábado, voltar para sexta
+		if data.Weekday() == time.Saturday {
+			data = data.AddDate(0, 0, -1)
+			ajustou = true
+			log.Printf("Ajustando sábado para sexta: %s", data.Format("02/01/2006"))
+		}
+
+		// Se cai no domingo, voltar para sexta
+		if data.Weekday() == time.Sunday {
+			data = data.AddDate(0, 0, -2)
+			ajustou = true
+			log.Printf("Ajustando domingo para sexta: %s", data.Format("02/01/2006"))
+		}
+
+		// Se é feriado, voltar um dia
+		if s.ehFeriado(data) {
+			data = data.AddDate(0, 0, -1)
+			ajustou = true
+			log.Printf("Ajustando feriado, voltando para: %s", data.Format("02/01/2006"))
+		}
+
+		// Se não precisou ajustar nada, encontramos um dia útil
+		if !ajustou {
+			break
+		}
 	}
-	// Se cai no domingo, voltar para sexta
-	if data.Weekday() == time.Sunday {
-		return data.AddDate(0, 0, -2)
-	}
+
 	return data
 }
 
