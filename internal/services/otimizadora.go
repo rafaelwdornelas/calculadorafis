@@ -5,12 +5,16 @@ import (
 	"sort"
 )
 
-// OtimizadoraService otimiza o investimento das sobras
-type OtimizadoraService struct{}
+// Se não e// OtimizadoraService otimiza o investimento das sobras
+type OtimizadoraService struct {
+	dataComService *DataComService
+}
 
 // NewOtimizadoraService cria um novo serviço de otimização
 func NewOtimizadoraService() *OtimizadoraService {
-	return &OtimizadoraService{}
+	return &OtimizadoraService{
+		dataComService: NewDataComService(),
+	}
 }
 
 // AtivoCandidate representa um ativo candidato a receber investimento adicional
@@ -22,6 +26,7 @@ type AtivoCandidate struct {
 	PesoIdeal float64 // Peso ideal para desempate
 }
 
+// OtimizarSobras otimiza o investimento das sobras
 // OtimizarSobras otimiza o investimento das sobras
 func (s *OtimizadoraService) OtimizarSobras(
 	valorSobra float64,
@@ -97,6 +102,22 @@ func (s *OtimizadoraService) OtimizarSobras(
 							(*recomendacoesFII)[j].Quantidade++
 							(*recomendacoesFII)[j].ValorCompra += candidato.Preco
 							*valorTotalRecomendadoFII += candidato.Preco
+
+							// Atualizar análise de data com se ainda não tiver
+							if (*recomendacoesFII)[j].StatusCompra == "" {
+								if analiseDataCom, err := s.dataComService.AnalisarDataComTicker(candidato.Ticker, "FII"); err == nil {
+									if analiseDataCom != nil {
+										(*recomendacoesFII)[j].ProximaDataCom = analiseDataCom.ProximaDataCom.Format("02/01/2006")
+										(*recomendacoesFII)[j].DiasAteDataCom = analiseDataCom.DiasAteDataCom
+										(*recomendacoesFII)[j].StatusCompra = analiseDataCom.StatusCompra
+										(*recomendacoesFII)[j].MensagemStatus = analiseDataCom.MensagemStatus
+									}
+								} else {
+									(*recomendacoesFII)[j].StatusCompra = "INDISPONIVEL"
+									(*recomendacoesFII)[j].MensagemStatus = "Dados não disponíveis"
+								}
+							}
+
 							encontrado = true
 							break
 						}
@@ -118,6 +139,20 @@ func (s *OtimizadoraService) OtimizarSobras(
 							ValorCompra:    fii.Preco,
 							PesoAposCompra: 0, // Será recalculado depois
 						}
+
+						// ADICIONE ANÁLISE DE DATA COM
+						if analiseDataCom, err := s.dataComService.AnalisarDataComTicker(fii.Ticker, "FII"); err == nil {
+							if analiseDataCom != nil {
+								novaRec.ProximaDataCom = analiseDataCom.ProximaDataCom.Format("02/01/2006")
+								novaRec.DiasAteDataCom = analiseDataCom.DiasAteDataCom
+								novaRec.StatusCompra = analiseDataCom.StatusCompra
+								novaRec.MensagemStatus = analiseDataCom.MensagemStatus
+							}
+						} else {
+							novaRec.StatusCompra = "INDISPONIVEL"
+							novaRec.MensagemStatus = "Dados não disponíveis"
+						}
+
 						*recomendacoesFII = append(*recomendacoesFII, novaRec)
 						*valorTotalRecomendadoFII += fii.Preco
 					}
@@ -131,6 +166,22 @@ func (s *OtimizadoraService) OtimizarSobras(
 							(*recomendacoesAcao)[j].Quantidade++
 							(*recomendacoesAcao)[j].ValorCompra += candidato.Preco
 							*valorTotalRecomendadoAcao += candidato.Preco
+
+							// Atualizar análise de data com se ainda não tiver
+							if (*recomendacoesAcao)[j].StatusCompra == "" {
+								if analiseDataCom, err := s.dataComService.AnalisarDataComTicker(candidato.Ticker, "ACAO"); err == nil {
+									if analiseDataCom != nil {
+										(*recomendacoesAcao)[j].ProximaDataCom = analiseDataCom.ProximaDataCom.Format("02/01/2006")
+										(*recomendacoesAcao)[j].DiasAteDataCom = analiseDataCom.DiasAteDataCom
+										(*recomendacoesAcao)[j].StatusCompra = analiseDataCom.StatusCompra
+										(*recomendacoesAcao)[j].MensagemStatus = analiseDataCom.MensagemStatus
+									}
+								} else {
+									(*recomendacoesAcao)[j].StatusCompra = "INDISPONIVEL"
+									(*recomendacoesAcao)[j].MensagemStatus = "Dados não disponíveis"
+								}
+							}
+
 							encontrado = true
 							break
 						}
@@ -150,6 +201,20 @@ func (s *OtimizadoraService) OtimizarSobras(
 							ValorCompra:    acao.Preco,
 							PesoAposCompra: 0, // Será recalculado depois
 						}
+
+						// ADICIONE ANÁLISE DE DATA COM
+						if analiseDataCom, err := s.dataComService.AnalisarDataComTicker(acao.Ticker, "ACAO"); err == nil {
+							if analiseDataCom != nil {
+								novaRec.ProximaDataCom = analiseDataCom.ProximaDataCom.Format("02/01/2006")
+								novaRec.DiasAteDataCom = analiseDataCom.DiasAteDataCom
+								novaRec.StatusCompra = analiseDataCom.StatusCompra
+								novaRec.MensagemStatus = analiseDataCom.MensagemStatus
+							}
+						} else {
+							novaRec.StatusCompra = "INDISPONIVEL"
+							novaRec.MensagemStatus = "Dados não disponíveis"
+						}
+
 						*recomendacoesAcao = append(*recomendacoesAcao, novaRec)
 						*valorTotalRecomendadoAcao += acao.Preco
 					}
