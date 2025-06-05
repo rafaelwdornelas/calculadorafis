@@ -297,6 +297,8 @@
                                         <th>Preço (R$)</th>
                                         <th>Quantidade</th>
                                         <th>Total (R$)</th>
+                                        <th>Data Com</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -307,6 +309,44 @@
                                         <td>{{ formatMoney .Preco }}</td>
                                         <td>{{ .Quantidade }}</td>
                                         <td>{{ formatMoney .ValorCompra }}</td>
+                                        <td>
+                                            {{ if .ProximaDataCom }}
+                                            {{ .ProximaDataCom }}
+                                            <br><small class="text-muted">{{ .DiasAteDataCom }} dias</small>
+                                            {{ else }}
+                                            -
+                                            {{ end }}
+                                        </td>
+                                        <td>
+                                            {{ if eq .StatusCompra "SEGURO" }}
+                                            <span class="badge bg-success" data-bs-toggle="tooltip"
+                                                title="{{ .MensagemStatus }}">
+                                                <i class="fas fa-check-circle"></i> Seguro
+                                            </span>
+                                            {{ else if eq .StatusCompra "ALERTA" }}
+                                            <span class="badge bg-warning text-dark" data-bs-toggle="tooltip"
+                                                title="{{ .MensagemStatus }}">
+                                                <i class="fas fa-exclamation-triangle"></i> Alerta
+                                            </span>
+                                            {{ else if eq .StatusCompra "EVITAR" }}
+                                            <span class="badge bg-danger" data-bs-toggle="tooltip"
+                                                title="{{ .MensagemStatus }}">
+                                                <i class="fas fa-times-circle"></i> Evitar
+                                            </span>
+                                            {{ else if eq .StatusCompra "NAO_COMPRAR" }}
+                                            <span class="badge bg-dark" data-bs-toggle="tooltip"
+                                                title="{{ .MensagemStatus }}">
+                                                <i class="fas fa-ban"></i> Não Comprar
+                                            </span>
+                                            {{ else if eq .StatusCompra "INDISPONIVEL" }}
+                                            <span class="badge bg-secondary" data-bs-toggle="tooltip"
+                                                title="{{ .MensagemStatus }}">
+                                                <i class="fas fa-minus"></i> -
+                                            </span>
+                                            {{ else }}
+                                            <span class="badge bg-secondary">-</span>
+                                            {{ end }}
+                                        </td>
                                     </tr>
                                     {{ end }}
                                 </tbody>

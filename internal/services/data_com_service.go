@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"regexp"
 	"sort"
@@ -46,13 +47,19 @@ type AnaliseDataCom struct {
 
 // AnalisarDataComTicker analisa a data com de um ticker específico
 func (s *DataComService) AnalisarDataComTicker(ticker string, tipoAtivo string) (*AnaliseDataCom, error) {
+	log.Printf("=== Iniciando análise de data com para %s (tipo: %s) ===", ticker, tipoAtivo)
+
 	// Buscar histórico de dividendos
 	dividendos, err := s.extrairDividendos(ticker, tipoAtivo)
 	if err != nil {
+		log.Printf("Erro ao extrair dividendos para %s: %v", ticker, err)
 		return nil, fmt.Errorf("erro ao extrair dividendos: %w", err)
 	}
 
+	log.Printf("Dividendos encontrados para %s: %d", ticker, len(dividendos))
+
 	if len(dividendos) == 0 {
+		log.Printf("Nenhum dividendo encontrado para %s", ticker)
 		return &AnaliseDataCom{
 			StatusCompra:   "SEGURO",
 			MensagemStatus: "Sem histórico de dividendos disponível",
@@ -96,24 +103,30 @@ func (s *DataComService) extrairDividendos(ticker, tipoAtivo string) ([]Dividend
 	if tipoAtivo == "FII" {
 		url = fmt.Sprintf("https://investidor10.com.br/fiis/%s/", strings.ToLower(ticker))
 	} else if tipoAtivo == "ETF" {
-		// ETFs geralmente não pagam dividendos mensais
+		log.Printf("ETFs não possuem análise de dividendos")
 		return []Dividendo{}, nil
 	} else {
 		// Ações
 		url = fmt.Sprintf("https://investidor10.com.br/acoes/%s/", strings.ToLower(ticker))
 	}
 
+	log.Printf("URL para buscar dividendos: %s", url)
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		log.Printf("Erro ao criar request: %v", err)
 		return nil, err
 	}
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
 
 	resp, err := s.HTTPClient.Do(req)
 	if err != nil {
+		log.Printf("Erro ao fazer request: %v", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	log.Printf("Status da resposta: %d", resp.StatusCode)
 
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("status code: %d", resp.StatusCode)
@@ -121,16 +134,21 @@ func (s *DataComService) extrairDividendos(ticker, tipoAtivo string) ([]Dividend
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		log.Printf("Erro ao ler body: %v", err)
 		return nil, err
 	}
 
 	content := string(body)
+	log.Printf("Tamanho do conteúdo recebido: %d bytes", len(content))
+
 	var dividendos []Dividendo
 
 	// Buscar dividendos com padrão flexível
 	blockPattern := `(?s)(Dividendos|JCP|Rendimento)[^0-9]{0,50}(\d{2}/\d{2}/\d{4})[^0-9]{0,50}(\d{2}/\d{2}/\d{4})[^0-9]{0,200}(0,\d+)`
 	re := regexp.MustCompile(blockPattern)
 	matches := re.FindAllStringSubmatch(content, -1)
+
+	log.Printf("Matches encontrados: %d", len(matches))
 
 	seen := make(map[string]bool)
 	for _, match := range matches {
@@ -145,10 +163,12 @@ func (s *DataComService) extrairDividendos(ticker, tipoAtivo string) ([]Dividend
 					Valor:         match[4],
 				}
 				dividendos = append(dividendos, div)
+				log.Printf("Dividendo encontrado: %+v", div)
 			}
 		}
 	}
 
+	log.Printf("Total de dividendos únicos encontrados: %d", len(dividendos))
 	return dividendos, nil
 }
 

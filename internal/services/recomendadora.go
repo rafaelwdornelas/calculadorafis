@@ -2,6 +2,7 @@ package services
 
 import (
 	"calculadora-investimentos/internal/models"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -12,7 +13,7 @@ type RecomendadoraService struct {
 	dataComService *DataComService
 }
 
-// NewRecomendadoraService cria um novo serviço de recomendações
+// Atualize o construtor
 func NewRecomendadoraService() *RecomendadoraService {
 	return &RecomendadoraService{
 		dataComService: NewDataComService(),
@@ -110,6 +111,22 @@ func (s *RecomendadoraService) GerarRecomendacoesFII(
 					Quantidade:     quantidadeCompra,
 					ValorCompra:    valorCompraAjustado,
 					PesoAposCompra: pesoAposCompra,
+				}
+
+				// ADICIONE ESTE CÓDIGO PARA ANÁLISE DE DATA COM
+				log.Printf("Analisando data com para FII: %s", rec.Ticker)
+				if analiseDataCom, err := s.dataComService.AnalisarDataComTicker(rec.Ticker, "FII"); err == nil {
+					if analiseDataCom != nil {
+						recomendacao.ProximaDataCom = analiseDataCom.ProximaDataCom.Format("02/01/2006")
+						recomendacao.DiasAteDataCom = analiseDataCom.DiasAteDataCom
+						recomendacao.StatusCompra = analiseDataCom.StatusCompra
+						recomendacao.MensagemStatus = analiseDataCom.MensagemStatus
+						log.Printf("Data com para %s: %s (Status: %s)", rec.Ticker, recomendacao.ProximaDataCom, recomendacao.StatusCompra)
+					}
+				} else {
+					log.Printf("Erro ao analisar data com para %s: %v", rec.Ticker, err)
+					recomendacao.StatusCompra = "INDISPONIVEL"
+					recomendacao.MensagemStatus = "Dados não disponíveis"
 				}
 
 				recomendacoes = append(recomendacoes, recomendacao)
