@@ -63,28 +63,6 @@ go run main.go
 5. Acesse no navegador:
 http://localhost:5000
 
-## 📁 Estrutura do Projeto
-
-calculadorafis/
-├── main.go                 # Entrada principal da aplicação
-├── go.mod                  # Gerenciamento de dependências
-├── data/                   # Arquivos de dados
-│   ├── recomendados_acoes.txt
-│   ├── recomendados_etfs.txt
-│   └── recomendados_fiis.txt
-├── internal/               # Código interno da aplicação
-│   ├── api/               # Cliente para APIs externas
-│   ├── cache/             # Sistema de cache
-│   ├── config/            # Configurações
-│   ├── handlers/          # Manipuladores HTTP
-│   ├── models/            # Estruturas de dados
-│   ├── services/          # Lógica de negócios
-│   └── utils/             # Utilitários
-├── static/                # Arquivos estáticos
-│   ├── css/              # Estilos
-│   └── js/               # Scripts
-└── templates/             # Templates HTML
-
 ## 🎯 Como Usar
 
 1. **Digite o valor do investimento**: Informe quanto deseja investir
