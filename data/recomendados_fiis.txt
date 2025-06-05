@@ -1,14 +1,14 @@
-XPML11	XP MALLS FUNDOS	Shoppings / Varejo	Fundo de Tijolo	10,00%
-HGLG11	PÁTRIA LOG	Logístico / Indústri...	Fundo de Tijolo	5,00%
-MXRF11	MAXI RENDA	Híbrido	Fundo de papel	5,00%
-PVBI11	VBI PRIME PROPERTIES	Lajes Corporativas	Fundo de Tijolo	10,00%
-VISC11	VINCI SHOPPING CENTE...	Shoppings / Varejo	Fundo de Tijolo	10,00%
-XPLG11	XP LOG	Logístico / Indústri...	Fundo de Tijolo	10,00%
-XPCI11	XP CREDITO IMOBILIÁR...	Títulos e Valores Mo...	Fundo de papel	7,50%
-KNIP11	KINEA ÍNDICE DE PREÇ...	Títulos e Valores Mo...	Fundo de papel	7,50%
-GARE11	GUARDIAN REAL ESTATE	Híbrido	Fundo de Tijolo	5,00%
-JURO11	Sparta Infra FIC FI-...	Fundo de Infraestrut...	Outro	10,00%
-KNCA11	KINEA CRÉDITO AGRO F...	Fiagros	Outro	5,00%
-SNAG11	SUNO AGRO	Fiagros	Outro	5,00%
-BTHF11	BTG PACTUAL REAL ESTATE HEDGE FUND	Híbrido	Fundo de papel	5,00%
-BTLG11	BTG PACTUAL LOGÍSTICA	Logístico / Indústria / Galpões	Fundo de Tijolo	5,00%
+BTHF11	BTG PACTUAL REAL ESTATE HEDGE FUND	Híbrido	Fundo de papel	7,14%
+BTLG11	BTG PACTUAL LOGÍSTICA	Logístico / Indústria / Galpões	Fundo de Tijolo	7,14%
+GARE11	GUARDIAN REAL ESTATE	Híbrido	Fundo de Tijolo	7,14%
+HGLG11	PÁTRIA LOG	Logístico / Indústri...	Fundo de Tijolo	7,14%
+JURO11	Sparta Infra FIC FI-...	Fundo de Infraestrut...	Outro	7,14%
+KNCA11	KINEA CRÉDITO AGRO F...	Fiagros	Outro	7,14%
+KNIP11	KINEA ÍNDICE DE PREÇ...	Títulos e Valores Mo...	Fundo de papel	7,14%
+MXRF11	MAXI RENDA	Híbrido	Fundo de papel	7,14%
+PVBI11	VBI PRIME PROPERTIES	Lajes Corporativas	Fundo de Tijolo	7,14%
+SNAG11	SUNO AGRO	Fiagros	Outro	7,14%
+VISC11	VINCI SHOPPING CENTE...	Shoppings / Varejo	Fundo de Tijolo	7,14%
+XPCI11	XP CREDITO IMOBILIÁR...	Títulos e Valores Mo...	Fundo de papel	7,14%
+XPLG11	XP LOG	Logístico / Indústri...	Fundo de Tijolo	7,14%
+XPML11	XP MALLS FUNDOS	Shoppings / Varejo	Fundo de Tijolo	7,18%
