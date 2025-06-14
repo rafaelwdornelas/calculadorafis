@@ -3,7 +3,6 @@ package services
 import (
 	"calculadora-investimentos/internal/models"
 	"log"
-	"math"
 	"strconv"
 )
 
@@ -61,33 +60,21 @@ func (c *Calculadora) CalcularRecomendacoes(
 	// Calcular a distribuição ideal (nova distribuição)
 	distribuicaoIdeal := c.distribuicaoService.CalcularDistribuicaoIdeal(tiposInvestimento)
 
-	// Calcular a distribuição do novo investimento
-	valorTotalAposInvestimento := valorTotalCarteira + valorInvestimento
+	// Criar mapas com valores atuais
+	valoresAtuais := map[string]float64{
+		"FIIs":      valorTotalCarteiraFII,
+		"Ações":     valorTotalCarteiraAcao,
+		"ETFs":      valorTotalCarteiraETF,
+		"RendaFixa": valorTotalCarteiraRendaFixa,
+	}
 
-	// Valores ideais de cada classe de ativo após o investimento
-	valorIdealFII := valorTotalAposInvestimento * distribuicaoIdeal["FIIs"] / 100
-	valorIdealAcao := valorTotalAposInvestimento * distribuicaoIdeal["Ações"] / 100
-	valorIdealETF := valorTotalAposInvestimento * distribuicaoIdeal["ETFs"] / 100
-	valorIdealRendaFixa := valorTotalAposInvestimento * distribuicaoIdeal["RendaFixa"] / 100
-
-	// Calcular quanto falta para atingir o valor ideal de cada classe
-	valorFaltaFII := math.Max(0, valorIdealFII-valorTotalCarteiraFII)
-	valorFaltaAcao := math.Max(0, valorIdealAcao-valorTotalCarteiraAcao)
-	valorFaltaETF := math.Max(0, valorIdealETF-valorTotalCarteiraETF)
-	valorFaltaRendaFixa := math.Max(0, valorIdealRendaFixa-valorTotalCarteiraRendaFixa)
-
-	// Calcular o valor total que falta para atingir a distribuição ideal
-	valorTotalFalta := valorFaltaFII + valorFaltaAcao + valorFaltaETF + valorFaltaRendaFixa
-
-	// Distribuir o investimento
-	valorParaFII, valorParaAcao, valorParaETF, valorParaRendaFixa := c.distribuicaoService.DistribuirInvestimento(
+	// Usar a nova função que prioriza por distância percentual
+	valorParaFII, valorParaAcao, valorParaETF, valorParaRendaFixa := c.distribuicaoService.DistribuirInvestimentoComPrioridade(
 		valorInvestimento,
-		valorTotalFalta,
-		valorFaltaFII,
-		valorFaltaAcao,
-		valorFaltaETF,
-		valorFaltaRendaFixa,
+		valoresAtuais,
+		distribuicaoAtual, // Este já contém os percentuais atuais
 		distribuicaoIdeal,
+		valorTotalCarteira,
 	)
 
 	// Gerar recomendações

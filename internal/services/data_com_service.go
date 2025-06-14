@@ -83,14 +83,51 @@ func (s *DataComService) AnalisarDataComTicker(ticker string, tipoAtivo string) 
 		UltimosDividendos: dividendos[:min(5, len(dividendos))],
 	}
 
-	// Análise diferente para FIIs (pagamento mensal) e Ações (trimestral/semestral)
-	if tipoAtivo == "FII" {
-		analise.PadraoMensal = true
-		s.analisarPadraoMensal(dividendos, analise, hoje)
-	} else {
-		analise.PadraoMensal = false
-		s.analisarPadraoTrimestral(dividendos, analise, hoje)
+	// NOVA LÓGICA: Buscar a próxima data com que já está definida
+	var proximaDataCom *time.Time
+
+	// Procurar por datas futuras já anunciadas
+	for _, div := range dividendos {
+		if div.DataParsed.After(hoje) {
+			// Encontrou uma data futura
+			if proximaDataCom == nil || div.DataParsed.Before(*proximaDataCom) {
+				temp := div.DataParsed
+				proximaDataCom = &temp
+				log.Printf("Encontrada data com futura já anunciada: %s", div.DataCom)
+			}
+		}
 	}
+
+	if proximaDataCom != nil {
+		// Usar a data com já anunciada
+		proximaDataComUtil := s.ajustarParaDiaUtil(*proximaDataCom)
+		analise.ProximaDataCom = proximaDataComUtil
+		analise.DiasAteDataCom = int(proximaDataComUtil.Sub(hoje).Hours() / 24)
+		log.Printf("Usando data com já anunciada: %s (ajustada para dia útil: %s)",
+			proximaDataCom.Format("02/01/2006"),
+			proximaDataComUtil.Format("02/01/2006"))
+	} else {
+		// Não há datas futuras anunciadas, fazer projeção baseada no histórico
+		log.Printf("Nenhuma data com futura anunciada, fazendo projeção baseada no histórico")
+
+		// Análise diferente para FIIs (pagamento mensal) e Ações (trimestral/semestral)
+		if tipoAtivo == "FII" {
+			analise.PadraoMensal = true
+			s.analisarPadraoMensal(dividendos, analise, hoje)
+		} else {
+			analise.PadraoMensal = false
+			s.analisarPadraoTrimestral(dividendos, analise, hoje)
+		}
+
+		// Se a análise de padrão já definiu a próxima data, não precisamos fazer mais nada
+		if !analise.ProximaDataCom.IsZero() {
+			// Já foi definido pela análise de padrão
+			log.Printf("Próxima data com projetada: %s", analise.ProximaDataCom.Format("02/01/2006"))
+		}
+	}
+
+	// Definir status de compra
+	s.definirStatusCompra(analise)
 
 	return analise, nil
 }
@@ -143,10 +180,19 @@ func (s *DataComService) extrairDividendos(ticker, tipoAtivo string) ([]Dividend
 
 	var dividendos []Dividendo
 
-	// Buscar dividendos com padrão flexível
-	blockPattern := `(?s)(Dividendos|JCP|Rendimento)[^0-9]{0,50}(\d{2}/\d{2}/\d{4})[^0-9]{0,50}(\d{2}/\d{2}/\d{4})[^0-9]{0,200}(0,\d+)`
-	re := regexp.MustCompile(blockPattern)
+	// Melhorar o padrão para capturar diferentes formatos
+	// Padrão 1: Tabela padrão com Tipo | Data COM | Pagamento | Valor
+	tablePattern := `(?s)<tr[^>]*>.*?<td[^>]*>\s*(Dividendos?|JCP|JSCP|Rendimentos?)\s*</td>.*?<td[^>]*>\s*(\d{2}/\d{2}/\d{4})\s*</td>.*?<td[^>]*>\s*(\d{2}/\d{2}/\d{4})\s*</td>.*?<td[^>]*>\s*([\d,]+)\s*</td>.*?</tr>`
+	re := regexp.MustCompile(tablePattern)
 	matches := re.FindAllStringSubmatch(content, -1)
+
+	// Se não encontrou com o primeiro padrão, tenta outro
+	if len(matches) == 0 {
+		// Padrão 2: Buscar dividendos com padrão mais flexível
+		blockPattern := `(?s)(Dividendos?|JCP|JSCP|Rendimentos?)[^0-9]{0,50}(\d{2}/\d{2}/\d{4})[^0-9]{0,50}(\d{2}/\d{2}/\d{4})[^0-9]{0,200}([\d,]+)`
+		re = regexp.MustCompile(blockPattern)
+		matches = re.FindAllStringSubmatch(content, -1)
+	}
 
 	log.Printf("Matches encontrados: %d", len(matches))
 
@@ -163,16 +209,41 @@ func (s *DataComService) extrairDividendos(ticker, tipoAtivo string) ([]Dividend
 					Valor:         match[4],
 				}
 				dividendos = append(dividendos, div)
-				log.Printf("Dividendo encontrado: %+v", div)
+				log.Printf("%s - Dividendo encontrado: %+v", ticker, div)
 			}
 		}
 	}
 
-	log.Printf("Total de dividendos únicos encontrados: %d", len(dividendos))
+	// Se ainda não encontrou, tenta um padrão mais específico para JSCP
+	if len(dividendos) == 0 {
+		// Padrão 3: Específico para JSCP com vírgula no valor
+		jscpPattern := `JSCP\s+(\d{2}/\d{2}/\d{4})\s+(\d{2}/\d{2}/\d{4})\s+(0,\d+)`
+		re = regexp.MustCompile(jscpPattern)
+		matches = re.FindAllStringSubmatch(content, -1)
+
+		for _, match := range matches {
+			if len(match) >= 4 {
+				key := match[1] + match[2]
+				if !seen[key] {
+					seen[key] = true
+					div := Dividendo{
+						Tipo:          "JSCP",
+						DataCom:       match[1],
+						DataPagamento: match[2],
+						Valor:         match[3],
+					}
+					dividendos = append(dividendos, div)
+					log.Printf("%s - JSCP encontrado: %+v", ticker, div)
+				}
+			}
+		}
+	}
+
+	log.Printf("Total de dividendos únicos encontrados para %s: %d", ticker, len(dividendos))
 	return dividendos, nil
 }
 
-// analisarPadraoMensal analisa FIIs que pagam mensalmente
+// analisarPadraoMensal analisa FIIs que pagam mensalmente (usado apenas quando não há datas futuras)
 func (s *DataComService) analisarPadraoMensal(dividendos []Dividendo, analise *AnaliseDataCom, hoje time.Time) {
 	// Analisar últimos 12 meses
 	umAnoAtras := hoje.AddDate(-1, 0, 0)
@@ -199,18 +270,15 @@ func (s *DataComService) analisarPadraoMensal(dividendos []Dividendo, analise *A
 
 	analise.DiaPagamentoComum = diaComum
 
-	// Calcular próxima data com
-	proximaDataCom := s.calcularProximaDataComMensal(dividendos[0].DataParsed, diaComum, hoje)
+	// Calcular a próxima data com baseada no padrão
+	ultimaDataCom := dividendos[0].DataParsed
+	proximaDataCom := s.calcularProximaDataComMensal(ultimaDataCom, diaComum, hoje)
 	proximaDataComUtil := s.ajustarParaDiaUtil(proximaDataCom)
-
 	analise.ProximaDataCom = proximaDataComUtil
 	analise.DiasAteDataCom = int(proximaDataComUtil.Sub(hoje).Hours() / 24)
-
-	// Definir status de compra
-	s.definirStatusCompra(analise)
 }
 
-// analisarPadraoTrimestral analisa ações que pagam trimestral/semestralmente
+// analisarPadraoTrimestral analisa ações que pagam trimestral/semestralmente (usado apenas quando não há datas futuras)
 func (s *DataComService) analisarPadraoTrimestral(dividendos []Dividendo, analise *AnaliseDataCom, hoje time.Time) {
 	// Mapear padrão de pagamento por mês
 	padraoMes := make(map[time.Month][]int)
@@ -225,7 +293,7 @@ func (s *DataComService) analisarPadraoTrimestral(dividendos []Dividendo, analis
 	var proximaDataCom *time.Time
 
 	// Verificar próximos 6 meses
-	for i := 0; i < 6; i++ {
+	for i := 1; i <= 6; i++ {
 		mesTestado := hoje.AddDate(0, i, 0).Month()
 		anoTestado := hoje.AddDate(0, i, 0).Year()
 
@@ -256,14 +324,18 @@ func (s *DataComService) analisarPadraoTrimestral(dividendos []Dividendo, analis
 		analise.ProximaDataCom = proximaDataComUtil
 		analise.DiasAteDataCom = int(proximaDataComUtil.Sub(hoje).Hours() / 24)
 	}
-
-	s.definirStatusCompra(analise)
 }
 
 // calcularProximaDataComMensal calcula a próxima data com para pagamento mensal
 func (s *DataComService) calcularProximaDataComMensal(ultimaData time.Time, diaComum int, hoje time.Time) time.Time {
 	// Começar com o próximo mês da última data
 	proximaData := ultimaData.AddDate(0, 1, 0)
+
+	// Se não tem dia comum definido, usar o dia da última data
+	if diaComum == 0 {
+		diaComum = ultimaData.Day()
+	}
+
 	proximaData = time.Date(
 		proximaData.Year(),
 		proximaData.Month(),
@@ -297,7 +369,6 @@ func (s *DataComService) ehFeriado(data time.Time) bool {
 	dataStr := data.Format("02/01")
 	for _, feriado := range feriadosFixos {
 		if dataStr == feriado {
-			log.Printf("Data %s é feriado fixo", data.Format("02/01/2006"))
 			return true
 		}
 	}
@@ -314,16 +385,9 @@ func (s *DataComService) ehFeriado(data time.Time) bool {
 	corpusChristi := pascoa.AddDate(0, 0, 60)   // 60 dias depois da Páscoa
 
 	// Verificar se a data é um dos feriados móveis
-	if data.Format("02/01/2006") == carnaval.Format("02/01/2006") {
-		log.Printf("Data %s é Carnaval", data.Format("02/01/2006"))
-		return true
-	}
-	if data.Format("02/01/2006") == sextaFeiraSanta.Format("02/01/2006") {
-		log.Printf("Data %s é Sexta-feira Santa", data.Format("02/01/2006"))
-		return true
-	}
-	if data.Format("02/01/2006") == corpusChristi.Format("02/01/2006") {
-		log.Printf("Data %s é Corpus Christi", data.Format("02/01/2006"))
+	if data.Format("02/01/2006") == carnaval.Format("02/01/2006") ||
+		data.Format("02/01/2006") == sextaFeiraSanta.Format("02/01/2006") ||
+		data.Format("02/01/2006") == corpusChristi.Format("02/01/2006") {
 		return true
 	}
 
@@ -361,21 +425,18 @@ func (s *DataComService) ajustarParaDiaUtil(data time.Time) time.Time {
 		if data.Weekday() == time.Saturday {
 			data = data.AddDate(0, 0, -1)
 			ajustou = true
-			log.Printf("Ajustando sábado para sexta: %s", data.Format("02/01/2006"))
 		}
 
 		// Se cai no domingo, voltar para sexta
 		if data.Weekday() == time.Sunday {
 			data = data.AddDate(0, 0, -2)
 			ajustou = true
-			log.Printf("Ajustando domingo para sexta: %s", data.Format("02/01/2006"))
 		}
 
 		// Se é feriado, voltar um dia
 		if s.ehFeriado(data) {
 			data = data.AddDate(0, 0, -1)
 			ajustou = true
-			log.Printf("Ajustando feriado, voltando para: %s", data.Format("02/01/2006"))
 		}
 
 		// Se não precisou ajustar nada, encontramos um dia útil
